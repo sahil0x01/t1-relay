@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+.turbo
+.env
+.env.*
+!.env.example
+.DS_Store
+plan-patches-gap-review.md
+project-plan.md
