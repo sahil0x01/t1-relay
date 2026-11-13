@@ -1,5 +1,5 @@
-import { defineConfig } from "cf/config";
 import * as entrypoint from "./src/index.ts" with { type: "cf-worker" };
+import { defineConfig, triggers } from "cf/config";
 
 export default defineConfig({
   worker: {
@@ -14,5 +14,6 @@ export default defineConfig({
       // MY_BUCKET: bindings.r2(),
       // MY_VAR: bindings.text('my-variable'),
     },
+    triggers: [triggers.fetch({ pattern: "relay.transistorone.com/api/*" })],
   },
 });
