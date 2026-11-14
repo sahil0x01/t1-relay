@@ -1,18 +1,16 @@
-import { defineConfig, triggers } from "cf/config";
+import { bindings, defineConfig, triggers } from "cf/config";
 import * as entrypoint from "./src/index.ts" with { type: "cf-worker" };
 
 export default defineConfig({
   worker: {
     name: "api",
     compatibilityDate: "2026-10-06",
+    compatibilityFlags: ["nodejs_compat"],
     entrypoint,
     env: {
-      // Declare bindings here with `import { bindings, defineConfig } from 'cf/config'`.
-      // No options are needed for local development:
-      // MY_KV: bindings.kv(),
-      // MY_DB: bindings.d1(),
-      // MY_BUCKET: bindings.r2(),
-      // MY_VAR: bindings.text('my-variable'),
+      DATABASE_URL: bindings.secret(),
+      BETTER_AUTH_SECRET: bindings.secret(),
+      BETTER_AUTH_URL: bindings.text("http://localhost:5173"),
     },
     triggers: [triggers.fetch({ pattern: "relay.transistorone.com/api/*" })],
   },

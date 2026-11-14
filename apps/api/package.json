@@ -8,6 +8,8 @@
     "typecheck": "cf workers types && tsc"
   },
   "dependencies": {
+    "@relay/db": "workspace:*",
+    "better-auth": "1.7.23",
     "hono": "5.0.0-rc.1"
   },
   "devDependencies": {
