@@ -13,6 +13,7 @@ const env: Env = {
   BETTER_AUTH_URL: "http://localhost:5173",
   RESEND_API_KEY: "unused",
   EMAIL_FROM: "Relay <onboarding@resend.dev>",
+  SENTRY_DSN: "",
 };
 function post(
   path: string,

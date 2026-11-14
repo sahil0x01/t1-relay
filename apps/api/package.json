@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@relay/db": "workspace:*",
+    "@sentry/cloudflare": "11.12.0",
+    "@sentry/hono": "11.12.0",
     "better-auth": "1.7.23",
     "hono": "5.0.0-rc.1",
     "resend": "6.38.1"

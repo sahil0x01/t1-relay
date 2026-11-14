@@ -1,0 +1,8 @@
+# Copy to .dev.vars and fill in. .dev.vars is gitignored; never commit real values.
+DATABASE_URL=postgres://relay:relay@localhost:5432/relay
+# Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=replace-me
+# From the Resend dashboard (a sending-only key)
+RESEND_API_KEY=replace-me
+# From the Sentry project settings (Client Keys)
+SENTRY_DSN=replace-me
