@@ -11,7 +11,7 @@ export default function VerifyEmailPage() {
   return (
     <AuthCard
       title="Check your inbox"
-      description="We sent you a link to verify your email address. Open it to finish creating your account."
+      description="If that email can be used for a new account, we sent a verification link. Open it to finish creating your account."
     >
       <Button variant="outline" onClick={() => setResent(true)}>
         Resend email

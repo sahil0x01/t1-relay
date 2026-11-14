@@ -2,22 +2,42 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { SubmitEvent } from "react";
+import { type SubmitEvent, useState } from "react";
 import { AuthCard } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
+    setPending(true);
+
+    const data = new FormData(event.currentTarget);
+    const result = await authClient.signUp.email({
+      name: String(data.get("name")),
+      email: String(data.get("email")),
+      password: String(data.get("password")),
+      callbackURL: "/login",
+    });
+
+    setPending(false);
+    if (result.error) {
+      setError(result.error.message ?? "Could not create your account.");
+      return;
+    }
     router.push("/verify-email");
   }
 
@@ -47,7 +67,10 @@ export default function RegisterPage() {
             />
             <FieldDescription>At least 8 characters.</FieldDescription>
           </Field>
-          <Button type="submit">Create account</Button>
+          {error && <FieldError>{error}</FieldError>}
+          <Button type="submit" disabled={pending}>
+            {pending ? "Creating account..." : "Create account"}
+          </Button>
         </FieldGroup>
       </form>
 
