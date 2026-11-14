@@ -4,6 +4,6 @@
     "build": { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"] },
     "dev": { "cache": false, "persistent": true },
     "typecheck": { "dependsOn": ["^typecheck"] },
-    "test": { "cache": false }
+    "test": { "cache": false, "env": ["TEST_DATABASE_URL"] }
   }
 }
