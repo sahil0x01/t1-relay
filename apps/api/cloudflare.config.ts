@@ -11,6 +11,8 @@ export default defineConfig({
       DATABASE_URL: bindings.secret(),
       BETTER_AUTH_SECRET: bindings.secret(),
       BETTER_AUTH_URL: bindings.text("http://localhost:5173"),
+      RESEND_API_KEY: bindings.secret(),
+      EMAIL_FROM: bindings.text("Relay <onboarding@resend.dev>"),
     },
     triggers: [triggers.fetch({ pattern: "relay.transistorone.com/api/*" })],
   },

@@ -5,18 +5,22 @@
     "dev": "cf dev",
     "build": "cf build",
     "deploy": "cf deploy",
-    "typecheck": "cf workers types && tsc"
+    "typecheck": "cf workers types && tsc",
+    "test": "node --env-file-if-exists=../../.env ./node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
     "@relay/db": "workspace:*",
     "better-auth": "1.7.23",
-    "hono": "5.0.0-rc.1"
+    "hono": "5.0.0-rc.1",
+    "resend": "6.38.1"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "2.0.0-beta.v.16",
     "@hono/cli": "1.0.0-rc.9",
+    "@types/node": "26.6.6",
     "cf": "1.0.0-beta.30",
     "typescript": "7.0.2",
-    "vite": "8.3.0"
+    "vite": "8.3.0",
+    "vitest": "5.1.0"
   }
 }

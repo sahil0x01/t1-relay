@@ -4,14 +4,36 @@ import Link from "next/link";
 import { type SubmitEvent, useState } from "react";
 import { AuthCard } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
+    setPending(true);
+
+    const data = new FormData(event.currentTarget);
+    const result = await authClient.requestPasswordReset({
+      email: String(data.get("email")),
+      redirectTo: "/reset-password",
+    });
+
+    setPending(false);
+    if (result.error) {
+      setError("Something went wrong. Try again.");
+      return;
+    }
     setSent(true);
   }
 
@@ -31,7 +53,10 @@ export default function ForgotPasswordPage() {
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input id="email" name="email" type="email" required />
             </Field>
-            <Button type="submit">Send reset link</Button>
+            {error && <FieldError>{error}</FieldError>}
+            <Button type="submit" disabled={pending}>
+              {pending ? "Sending..." : "Send reset link"}
+            </Button>
           </FieldGroup>
         </form>
       )}
