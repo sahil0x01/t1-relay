@@ -10,3 +10,4 @@ export function createDb(databaseUrl: string) {
 
 export type Db = ReturnType<typeof createDb>;
 export { scopedDb } from "./scoped.ts";
+export { removeInstallation, removeProjectsForRepos } from "./system.ts";

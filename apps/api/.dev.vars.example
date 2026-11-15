@@ -6,3 +6,11 @@ BETTER_AUTH_SECRET=replace-me
 RESEND_API_KEY=replace-me
 # From the Sentry project settings (Client Keys)
 SENTRY_DSN=replace-me
+# From the GitHub App settings page (development app)
+GITHUB_APP_ID=replace-me
+GITHUB_APP_CLIENT_ID=replace-me
+GITHUB_APP_CLIENT_SECRET=replace-me
+# base64 of the downloaded .pem, on one line: base64 -i key.pem | tr -d '\n'
+GITHUB_APP_PRIVATE_KEY=replace-me
+# Must match the webhook secret in the GitHub App settings
+GITHUB_WEBHOOK_SECRET=replace-me

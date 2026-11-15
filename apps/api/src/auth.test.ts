@@ -1,43 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import app from "./index.ts";
+import { env, newUser, post } from "./test-helpers.ts";
 
 vi.mock("./email.ts", () => ({ sendEmail: vi.fn() }));
 
 import { sendEmail } from "./email.ts";
 
 const sendEmailMock = vi.mocked(sendEmail);
-
-const env: Env = {
-  DATABASE_URL: process.env.TEST_DATABASE_URL ?? "",
-  BETTER_AUTH_SECRET: "test-secret-that-is-at-least-32-characters",
-  BETTER_AUTH_URL: "http://localhost:5173",
-  RESEND_API_KEY: "unused",
-  EMAIL_FROM: "Relay <onboarding@resend.dev>",
-  SENTRY_DSN: "",
-};
-function post(
-  path: string,
-  body: unknown,
-  headers: Record<string, string> = { origin: "http://localhost:5173" },
-) {
-  return app.request(
-    path,
-    {
-      method: "POST",
-      headers: { "content-type": "application/json", ...headers },
-      body: JSON.stringify(body),
-    },
-    env,
-  );
-}
-
-function newUser() {
-  return {
-    name: "Test User",
-    email: `${crypto.randomUUID()}@example.com`,
-    password: "correct-horse-battery",
-  };
-}
 
 function linkFromLastEmail() {
   const html = sendEmailMock.mock.calls.at(-1)?.[1].html ?? "";

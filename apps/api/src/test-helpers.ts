@@ -1,4 +1,4 @@
-import { createDb } from "@relay/db";
+import { createDb, scopedDb } from "@relay/db";
 import app from "./index.ts";
 
 export const env: Env = {
@@ -8,6 +8,11 @@ export const env: Env = {
   RESEND_API_KEY: "unused",
   EMAIL_FROM: "Relay <onboarding@resend.dev>",
   SENTRY_DSN: "",
+  GITHUB_APP_CLIENT_ID: "test-client-id",
+  GITHUB_APP_CLIENT_SECRET: "test-client-secret",
+  GITHUB_APP_PRIVATE_KEY: "",
+  GITHUB_APP_SLUG: "t1-relay-dev",
+  GITHUB_WEBHOOK_SECRET: "test-webhook-secret",
 };
 
 export function post(
@@ -50,4 +55,55 @@ export async function signUpAndLogIn() {
     password: user.password,
   });
   return (res.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+}
+
+export async function userIdOf(cookie: string) {
+  const res = await app.request(
+    "/api/auth/get-session",
+    { headers: { cookie } },
+    env,
+  );
+  const body = (await res.json()) as { user: { id: string } };
+  return body.user.id;
+}
+
+// GitHub ids are plain numbers. Random ones keep tests from colliding, because
+// webhooks act on an installation id across every user.
+export function randomGithubId() {
+  return Math.floor(Math.random() * 1_000_000_000) + 1_000_000;
+}
+
+// Links an installation to a user straight in the database (the GitHub side
+// is covered by github.test.ts) and returns its id.
+export async function seedInstallation(userId: string) {
+  const db = createDb(env.DATABASE_URL);
+  try {
+    const installationId = randomGithubId();
+    await scopedDb(db, userId).installations.upsert({
+      installationId,
+      accountLogin: "octocat",
+    });
+    return installationId;
+  } finally {
+    await db.$client.end();
+  }
+}
+
+// Gives a user a linked installation and one connected project.
+export async function seedProject(userId: string, repoFullName = "acme/web") {
+  const installationId = await seedInstallation(userId);
+  const db = createDb(env.DATABASE_URL);
+  try {
+    const data = scopedDb(db, userId);
+    const created = await data.projects.create({
+      installationId,
+      githubRepoId: randomGithubId(),
+      repoFullName,
+      defaultBranch: "main",
+    });
+    if (!created) throw new Error("seedProject: the project was not created");
+    return created;
+  } finally {
+    await db.$client.end();
+  }
 }

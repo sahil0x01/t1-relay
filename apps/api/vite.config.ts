@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     port: 8787,
     strictPort: true,
+    allowedHosts: ["relay-dev.transistorone.com"],
   },
   build: {
     minify: true,

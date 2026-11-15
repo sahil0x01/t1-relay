@@ -1,7 +1,8 @@
 "use client";
 
-import { ListTodo, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { GitBranch, ListTodo, LogOut } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import {
   Sidebar,
@@ -19,12 +20,18 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 
+const navItems = [
+  { href: "/dashboard", label: "Tasks", icon: ListTodo },
+  { href: "/dashboard/repositories", label: "Repositories", icon: GitBranch },
+];
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
@@ -56,12 +63,16 @@ export default function DashboardLayout({
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton isActive>
-                    <ListTodo />
-                    <span>Tasks</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {navItems.map(({ href, label, icon: Icon }) => (
+                  <SidebarMenuItem key={href}>
+                    <SidebarMenuButton asChild isActive={pathname === href}>
+                      <Link href={href}>
+                        <Icon />
+                        <span>{label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

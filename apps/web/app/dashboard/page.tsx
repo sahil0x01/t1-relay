@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { type SubmitEvent, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,7 @@ type RunStatus = "queued" | "running" | "completed" | "failed";
 
 type Run = {
   id: string;
+  projectId: string | null;
   prompt: string;
   repo: string;
   branch: string;
@@ -26,6 +29,8 @@ type Run = {
 };
 
 type RunPage = { items: Run[]; nextCursor: string | null };
+
+type Project = { id: string; repoFullName: string; defaultBranch: string };
 
 const statusVariant = {
   queued: "outline",
@@ -50,9 +55,11 @@ export default function TasksPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectsLoaded, setProjectsLoaded] = useState(false);
+  const [projectId, setProjectId] = useState("");
+  const [branch, setBranch] = useState("");
   const [prompt, setPrompt] = useState("");
-  const [repo, setRepo] = useState("acme/web");
-  const [branch, setBranch] = useState("main");
   const [model, setModel] = useState("sonnet");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -66,6 +73,36 @@ export default function TasksPage() {
       .catch((error: Error) => setLoadError(error.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Could not load your repositories.");
+        }
+        return res.json() as Promise<{ items: Project[] }>;
+      })
+      .then((data) => {
+        setProjects(data.items);
+        const first = data.items[0];
+        if (first) {
+          setProjectId(first.id);
+          setBranch(first.defaultBranch);
+        }
+      })
+      .catch((error: Error) => setLoadError(error.message))
+      .finally(() => setProjectsLoaded(true));
+  }, []);
+
+  const noProjects = projectsLoaded && projects.length === 0;
+
+  function chooseProject(id: string) {
+    setProjectId(id);
+    const project = projects.find((p) => p.id === id);
+    if (project) {
+      setBranch(project.defaultBranch);
+    }
+  }
 
   async function handleLoadMore() {
     if (!nextCursor) return;
@@ -91,8 +128,14 @@ export default function TasksPage() {
       const res = await fetch("/api/runs", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt, repo, branch, model }),
+        body: JSON.stringify({ projectId, branch, prompt, model }),
       });
+      if (res.status === 404) {
+        setSubmitError(
+          "That repository is no longer connected. Choose another one.",
+        );
+        return;
+      }
       if (!res.ok) {
         setSubmitError("Could not create the run. Please try again.");
         return;
@@ -121,27 +164,46 @@ export default function TasksPage() {
               className="min-h-24"
               aria-label="Task"
               maxLength={10000}
+              disabled={noProjects}
             />
+            {noProjects && (
+              <p className="text-sm text-muted-foreground">
+                Connect a repository on the{" "}
+                <Link
+                  href="/dashboard/repositories"
+                  className="font-medium underline"
+                >
+                  Repositories
+                </Link>{" "}
+                page before you start a task.
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-2">
-              <Select value={repo} onValueChange={setRepo}>
-                <SelectTrigger className="w-40" aria-label="Repository">
-                  <SelectValue />
+              <Select
+                value={projectId}
+                onValueChange={chooseProject}
+                disabled={noProjects}
+              >
+                <SelectTrigger className="w-52" aria-label="Repository">
+                  <SelectValue placeholder="Repository" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="acme/web">acme/web</SelectItem>
-                  <SelectItem value="acme/api">acme/api</SelectItem>
-                  <SelectItem value="acme/docs">acme/docs</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.repoFullName}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <Select value={branch} onValueChange={setBranch}>
-                <SelectTrigger className="w-32" aria-label="Branch">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="main">main</SelectItem>
-                  <SelectItem value="develop">develop</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                value={branch}
+                onChange={(event) => setBranch(event.target.value)}
+                placeholder="Branch"
+                aria-label="Branch"
+                className="w-36"
+                maxLength={255}
+                disabled={noProjects}
+              />
               <Select value={model} onValueChange={setModel}>
                 <SelectTrigger className="w-48" aria-label="Model">
                   <SelectValue />
@@ -154,7 +216,13 @@ export default function TasksPage() {
               <Button
                 type="submit"
                 className="ml-auto"
-                disabled={submitting || prompt.trim() === ""}
+                disabled={
+                  submitting ||
+                  noProjects ||
+                  projectId === "" ||
+                  branch.trim() === "" ||
+                  prompt.trim() === ""
+                }
               >
                 {submitting ? "Starting..." : "Run"}
               </Button>

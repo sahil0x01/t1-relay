@@ -11,3 +11,4 @@ project-plan.md
 .claude/skills
 docs/decisions
 *.tsbuildinfo
+*.pem

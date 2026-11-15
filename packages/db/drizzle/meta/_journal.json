@@ -15,6 +15,20 @@
       "when": 1794704099718,
       "tag": "0001_round_stingray",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794725689761,
+      "tag": "0002_small_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794727740103,
+      "tag": "0003_thin_rage",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,7 @@
     "build": "cf build",
     "deploy": "cf deploy",
     "typecheck": "cf workers types && tsc",
+    "github:smoke": "node --env-file=.dev.vars scripts/read-token-smoke.ts",
     "test": "node --env-file-if-exists=../../.env ./node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
