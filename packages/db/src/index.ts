@@ -7,3 +7,6 @@ export { schema };
 export function createDb(databaseUrl: string) {
   return drizzle(postgres(databaseUrl), { schema });
 }
+
+export type Db = ReturnType<typeof createDb>;
+export { scopedDb } from "./scoped.ts";

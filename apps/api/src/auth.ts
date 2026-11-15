@@ -1,11 +1,9 @@
-import { createDb, schema } from "@relay/db";
+import { type Db, schema } from "@relay/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { sendEmail } from "./email.ts";
 
-export function createAuth(env: Env) {
-  const db = createDb(env.DATABASE_URL);
-
+export function createAuth(env: Env, db: Db) {
   return betterAuth({
     database: drizzleAdapter(db, { provider: "pg", schema }),
     secret: env.BETTER_AUTH_SECRET,
