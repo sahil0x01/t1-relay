@@ -10,3 +10,4 @@ plan-patches-gap-review.md
 project-plan.md
 .claude/skills
 docs/decisions
+*.tsbuildinfo

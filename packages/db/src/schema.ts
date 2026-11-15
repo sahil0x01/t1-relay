@@ -1,4 +1,13 @@
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import {
+  boolean,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -84,4 +93,34 @@ export const verification = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)],
+);
+
+export const runStatus = pgEnum("run_status", [
+  "queued",
+  "running",
+  "completed",
+  "failed",
+]);
+
+export const run = pgTable(
+  "run",
+  {
+    id: uuid("id").primaryKey().default(sql`uuidv7()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    prompt: text("prompt").notNull(),
+    repo: text("repo").notNull(),
+    branch: text("branch").notNull(),
+    model: text("model").notNull(),
+    status: runStatus("status").notNull().default("queued"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [index("run_user_id_id_idx").on(table.userId, table.id)],
 );

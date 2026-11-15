@@ -8,6 +8,13 @@
       "when": 1794642345641,
       "tag": "0000_lyrical_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794704099718,
+      "tag": "0001_round_stingray",
+      "breakpoints": true
     }
   ]
 }
